@@ -15143,6 +15143,34 @@
       }
     })();
 
+    // 涨红跌绿开关：也可拖动（与目录同款手感；用位移阈值区分"点击切换"与"拖动"）
+    (function(){
+      const tog = document.querySelector('.color-toggle');
+      if (!tog) return;
+      let dragging=false, moved=false, sx, sy, ox, oy;
+      try { const p = JSON.parse(localStorage.getItem('colorTogglePos')||'null');
+        if (p){ tog.style.left=p.x+'px'; tog.style.top=p.y+'px'; tog.style.right='auto'; tog.style.bottom='auto'; } } catch(e){}
+      function down(x,y){ dragging=true; moved=false; sx=x; sy=y;
+        const r=tog.getBoundingClientRect(); ox=r.left; oy=r.top; }
+      function move(x,y){ if(!dragging) return false;
+        const dx=x-sx, dy=y-sy;
+        if(!moved && Math.hypot(dx,dy)<4) return false;   // 阈值内当作点击
+        moved=true; tog.style.left=(ox+dx)+'px'; tog.style.top=(oy+dy)+'px';
+        tog.style.right='auto'; tog.style.bottom='auto'; return true; }
+      function up(){ if(dragging && moved){
+        try{ localStorage.setItem('colorTogglePos', JSON.stringify({x:tog.offsetLeft,y:tog.offsetTop})); }catch(e){} }
+        dragging=false; }
+      tog.addEventListener('mousedown', e=>{ down(e.clientX,e.clientY); });
+      document.addEventListener('mousemove', e=>{ if(move(e.clientX,e.clientY)) e.preventDefault(); });
+      document.addEventListener('mouseup', up);
+      // 拖动结束的那次 click 吞掉，避免误切换配色（capture 阶段拦截 label 默认行为）
+      tog.addEventListener('click', e=>{ if(moved){ e.preventDefault(); e.stopPropagation(); moved=false; } }, true);
+      tog.addEventListener('touchstart', e=>{ const t=e.touches[0]; down(t.clientX,t.clientY); }, {passive:true});
+      document.addEventListener('touchmove', e=>{ const t=e.touches[0]; if(t) move(t.clientX,t.clientY); }, {passive:true});
+      document.addEventListener('touchend', up);
+      tog.style.cursor='grab';
+    })();
+
 </script>
 
 
