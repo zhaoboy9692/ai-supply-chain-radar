@@ -2174,7 +2174,7 @@
 
     <section id="deep-dive">
       <h2 id="sec-15">重点标的逐股研究</h2>
-      <p class="muted">按 AI 工厂纵深拆成<b>算力核心</b>、材料、测试、连接器、液冷、电气化、服务器ODM、光通信、电子布/CCL 九组（30 只）。美股、A股、港股结合行情快照与资金结构；日韩台欧部分用公开行情与官方资料，并标注数据来源差异。</p>
+      <p class="muted">按 AI 工厂纵深拆成<b>算力芯片、存储、光纤海缆、PCB/CCL、被动元件、AI芯片、光芯片、连接网络、测试、连接器、液冷、电气化、服务器ODM、光通信、电子布</b>等十五组（50 只）。美股、A股、港股结合行情快照与资金结构；日韩台欧部分用公开行情与官方资料，并标注数据来源差异。</p>
       <div id="deepDiveStats" class="grid cols-4"></div>
       <div id="deepDiveCards" class="deep-grid"></div>
     </section>
@@ -3411,6 +3411,206 @@
         peers: '对标 AMD、Broadcom(定制 ASIC)、Intel(Gaudi)、Marvell(custom XPU)、Google TPU、Amazon Trainium；NVDA 在训练端仍是绝对垄断，推理端竞争加剧但 CUDA 生态壁垒深。',
         bear: 'AI capex 周期放缓、客户自研 ASIC 蚕食份额、Blackwell/Rubin 良率不达标、中国出口管制影响收入、估值从成长切换到周期(利率敏感)。',
         sourceLabel: 'NVIDIA GTC Taipei 2026', sourceUrl: 'https://blogs.nvidia.com/blog/nvidia-gtc-taipei-computex-2026-news/'
+      },
+      {
+        symbol: 'AMD.US', name: 'AMD / 超威半导体', region: '美国', layer: 'GPU/CPU/AI推理加速', status: '核心高估值',
+        kline: [['1日', '+1.8%'], ['20日', '+9.4%'], ['60日', '+149.4%'], ['252日', '+302.8%']],
+        flow: '期权异动：6/8 大单看涨为主；资金结构短线活跃，60日+149%属于反弹最猛阵营之一。',
+        evidence: 'MI300X/MI350X 进入超大规模客户部署(Meta/Microsoft)；Instinct 系列在推理和微调场景追赶 NVIDIA；Zen 5 服务器 CPU(Turin)份额持续扩大；2026 Q1 数据中心收入创纪录。',
+        valuation: '60日涨幅极大，估值已按AI GPU二供定价；优势是推理成本竞争力，劣势是训练端仍差距明显。',
+        peers: '对标 NVIDIA(训练端垄断)、Intel(Gaudi)、Broadcom(定制ASIC)；AMD在GPU+CPU双线布局上独特。',
+        bear: 'MI系列推理性能不及预期、CUDA生态锁定效应过强、客户不愿切换、Instinct毛利率被压。',
+        sourceLabel: 'AMD Instinct/数据中心', sourceUrl: 'https://www.amd.com/en/products/accelerators/instinct.html'
+      },
+      {
+        symbol: 'MU.US', name: 'Micron / 美光', region: '美国', layer: 'HBM/DRAM/NAND存储', status: '交易拥挤',
+        kline: [['1日', '-0.2%'], ['20日', '+23.8%'], ['60日', '+115.0%'], ['252日', '+757.6%']],
+        flow: '盘前 989.76(+4.3%)逼近 6/4 暴跌前 996；期权 6/8 大单看涨。252日+758%是全链涨幅前三。',
+        evidence: 'HBM3E 量产领先(8-hi/12-hi)、AI GPU 每颗配套 HBM 容量持续翻倍；FY2026 Q3 营收预计再创新高，数据中心 DRAM 占比超 50%；NAND eSSD 受益 AI 训练数据存储。',
+        valuation: '一年涨 7.5 倍，典型动量交易拥挤；估值锚在 HBM ASP 和良率，非传统 DRAM 周期估值框架。',
+        peers: '对标 SK Hynix(HBM市占率最高)、Samsung Memory、Kioxia/WDC(NAND)；MU在美国本土HBM产能上独特。',
+        bear: 'HBM良率/ASP下滑、DRAM周期性下行、客户库存消化、三星追赶缩小份额差。',
+        sourceLabel: 'Micron HBM/数据中心', sourceUrl: 'https://www.micron.com/products/memory/hbm'
+      },
+      {
+        symbol: 'AVGO.US', name: 'Broadcom / 博通', region: '美国', layer: '定制AI ASIC/网络芯片/VMware', status: '核心高估值',
+        kline: [['1日', '-0.6%'], ['20日', '-5.4%'], ['60日', '+22.3%'], ['252日', '+63.7%']],
+        flow: '20日微回撤，属于核心票中最稳的一档；VMware整合贡献稳定现金流。',
+        evidence: '为 Google(TPU)、Meta、ByteDance 等设计定制 AI ASIC(XPU)；Tomahawk/Jericho 网络芯片是数据中心交换核心；VMware 收购后软件利润率提升。Q2 FY2025 AI收入同比+44%。',
+        valuation: '1.3万亿市值，252日仅+64%——和NVDA类似，属于大盘AI核心股中涨幅最温和的；估值靠定制ASIC管线和VMware提利润率。',
+        peers: '对标 Marvell(定制XPU)、NVIDIA(通用GPU vs定制)、Arista(网络芯片竞争)；AVGO独特性是ASIC+网络+软件三合一。',
+        bear: '定制ASIC客户集中、网络芯片被Marvell/NVIDIA侵蚀、VMware整合不顺、估值按周期回落。',
+        sourceLabel: 'Broadcom AI/网络芯片', sourceUrl: 'https://www.broadcom.com/products/ethernet-connectivity/switching'
+      },
+      {
+        symbol: '600487.SH', name: '亨通光电', region: 'A股', layer: '海缆+光纤龙头/DCI互联', status: '交易拥挤',
+        kline: [['1日', '+10.0%涨停'], ['20日', '+39.8%'], ['60日', '+106.7%'], ['252日', '+615.4%']],
+        flow: '资金结构：6/9涨停板封单量大，市值2590亿。大单净流入为主。',
+        evidence: '海底光缆+陆地光纤双龙头，AI数据中心互联(DCI)+海缆订单+海上风电三重驱动。全球海缆订单景气向上，公司份额领先。',
+        valuation: '252日+615%已是大牛股，6/9涨停后短线极度拥挤；估值取决于海缆订单交付节奏和DCI光纤放量。',
+        peers: '对标长飞光纤(光纤预制棒)、中天科技(海缆+电力)、烽火通信(光通信设备)、NKT/Prysmian(海外海缆)。',
+        bear: '海缆项目延期、光纤价格战、DCI需求不及预期、涨停后追高资金获利了结。',
+        sourceLabel: '亨通光电官网', sourceUrl: 'https://www.hengtonggroup.com/'
+      },
+      {
+        symbol: '601869.SH', name: '长飞光纤', region: 'A股', layer: '光纤预制棒全球龙头', status: '交易拥挤',
+        kline: [['1日', '+10.0%涨停'], ['20日', '+17.7%'], ['60日', '+93.7%'], ['252日', '+1402.7%']],
+        flow: '资金结构：涨停封单，市值4010亿。252日+1403%——全链涨幅最猛标的之一。',
+        evidence: '全球光纤预制棒产能和技术龙头；AI算力网络+东数西算驱动光纤需求结构性增长；公司同时布局海缆和数据中心光缆。',
+        valuation: '一年涨14倍，极度拥挤。逻辑硬(预制棒壁垒高)但价格已充分反映；任何利润不达预期都会引发剧烈回撤。',
+        peers: '对标亨通光电(海缆+光纤)、中天科技、烽火通信、Corning(美国光纤龙头)、Prysmian。',
+        bear: '光纤预制棒产能释放导致供过于求、需求增速放缓、高位资金出逃。',
+        sourceLabel: '长飞光纤官网', sourceUrl: 'https://www.yofc.com/'
+      },
+      {
+        symbol: '600522.SH', name: '中天科技', region: 'A股', layer: '海缆+光纤+电力线缆', status: '交易拥挤',
+        kline: [['1日', '+10.0%涨停'], ['20日', '+23.6%'], ['60日', '+81.5%'], ['252日', '+319.7%']],
+        flow: '资金结构：涨停板，市值1859亿。海缆+算力光缆双重驱动。',
+        evidence: '海缆+光纤+电力线缆综合龙头，同时受益海上风电海缆和AI数据中心光缆需求；产品线覆盖面比亨通/长飞更宽。',
+        valuation: '252日+320%，涨幅低于亨通/长飞；业务多元(电力线缆稀释AI纯度)但也降低波动风险。',
+        peers: '对标亨通光电、长飞光纤、烽火通信、远东股份(电力线缆)；中天更偏综合线缆平台。',
+        bear: '海缆订单不及预期、电力线缆业务拖累整体毛利率、光纤价格战。',
+        sourceLabel: '中天科技官网', sourceUrl: 'https://www.chinaztt.com/'
+      },
+      {
+        symbol: '600498.SH', name: '烽火通信', region: 'A股', layer: '光通信设备/光棒/国产替代', status: '高优先级',
+        kline: [['1日', '+8.0%'], ['20日', '-0.3%'], ['60日', '+3.2%'], ['252日', '+191.5%']],
+        flow: '资金结构：6/9大涨但未涨停；市值799亿，20日/60日相对滞后于光纤三剑客。',
+        evidence: '光通信设备+光棒产能，受益算力互联和国产替代；母公司中国信科是国资光通信平台。相比亨通/长飞/中天，烽火更偏设备侧。',
+        valuation: '60日仅+3%，明显滞后于光纤链(亨通+107%、长飞+94%、中天+82%)；若光纤链逻辑持续，烽火有补涨空间。',
+        peers: '对标华为(光网络设备)、中兴通讯、Ciena、Nokia；烽火是A股纯光通信设备映射。',
+        bear: '光通信设备竞争激烈、利润率薄、国产替代进度不及预期、母公司整合不确定性。',
+        sourceLabel: '烽火通信官网', sourceUrl: 'https://www.fiberhome.com/'
+      },
+      {
+        symbol: '002636.SZ', name: '金安国纪', region: 'A股', layer: 'CCL覆铜板', status: '交易拥挤',
+        kline: [['1日', '+10.0%涨停'], ['20日', '+51.6%'], ['60日', '+147.1%'], ['252日', '+756.2%']],
+        flow: '资金结构：涨停板，市值512亿。20日+52%、60日+147%极度拥挤。',
+        evidence: 'CCL覆铜板核心标的，AI服务器高速PCB材料量价齐升；电子布涨价向CCL传导，金安国纪是A股纯CCL弹性最大标的之一。',
+        valuation: '一年涨7.5倍，极度动量；估值完全取决于CCL涨价能否持续和AI服务器PCB需求。',
+        peers: '对标建滔积层板(港股CCL)、生益科技(A股CCL龙头)、台光电、联茂、南亚塑胶。',
+        bear: '上游电子布涨价传导失败、AI服务器PCB需求放缓、高位资金踩踏。',
+        sourceLabel: '金安国纪公告', sourceUrl: 'https://www.cninfo.com.cn/new/disclosure/detail?stockCode=002636&announcementId=1231811101'
+      },
+      {
+        symbol: '600183.SH', name: '生益科技', region: 'A股', layer: 'CCL/高频高速材料龙头', status: '交易拥挤',
+        kline: [['1日', '+10.0%涨停'], ['20日', '+73.9%'], ['60日', '+135.2%'], ['252日', '+486.8%']],
+        flow: '资金结构：涨停板，市值3582亿。20日+74%是CCL链涨速最快的。',
+        evidence: 'A股CCL行业龙头，高频高速覆铜板市占率领先；产品直供AI服务器PCB厂(沪电/深南/鹏鼎)；电子布涨价+铜箔涨价双重传导。',
+        valuation: '3582亿市值体量大，但20日+74%已极度拥挤；龙头地位确定，但短线风险高。',
+        peers: '对标建滔积层板、金安国纪、台光电、联茂、南亚塑胶；生益是A股CCL规模+研发双龙头。',
+        bear: '高速材料涨价不持续、下游PCB厂压价、产能释放改变供需、铜价回落削弱涨价逻辑。',
+        sourceLabel: '生益科技官网', sourceUrl: 'https://www.sytech.com.cn/'
+      },
+      {
+        symbol: '002463.SZ', name: '沪电股份', region: 'A股', layer: '高速PCB/AI服务器板', status: '交易拥挤',
+        kline: [['1日', '+3.0%'], ['20日', '+29.8%'], ['60日', '+83.9%'], ['252日', '+369.7%']],
+        flow: '资金结构：大单净流入，市值2715亿。AI服务器PCB核心供应商。',
+        evidence: 'A股高速PCB龙头之一，产品覆盖AI服务器、交换机、路由器用高层高速板；受益于AI算力扩容对高速PCB的刚性需求。2026Q1收入高增。',
+        valuation: '252日+370%已充分定价AI PCB逻辑；继续上行需要订单量和ASP双验证。',
+        peers: '对标深南电路、鹏鼎控股、胜宏科技、TTM、Unimicron；沪电更偏企业通信和服务器板。',
+        bear: '高速PCB产能释放、客户压价、上游CCL涨价挤压利润率。',
+        sourceLabel: '沪电股份公告', sourceUrl: 'https://www.wus.com.cn/'
+      },
+      {
+        symbol: '603678.SH', name: '火炬电子', region: 'A股', layer: 'MLCC/特种电容/被动元件', status: '高优先级',
+        kline: [['1日', '+5.2%'], ['20日', '+77.2%'], ['60日', '+53.1%'], ['252日', '+69.6%']],
+        flow: '资金结构：20日+77%短线急拉；市值284亿偏小盘。',
+        evidence: '特种陶瓷电容器龙头，产品覆盖军工+民用MLCC；AI服务器每台用量数千颗MLCC，单机价值量翻倍。2026Q1利润高增。',
+        valuation: '市值小弹性大，但20日已急拉77%；短线追高风险高，中期看MLCC量价和军民融合。',
+        peers: '对标村田(全球MLCC龙头)、三星电机、TDK、国巨、风华高科、三环集团；火炬更偏特种+军工MLCC。',
+        bear: 'MLCC涨价不持续、军工订单波动、产能扩张不及预期、小盘流动性风险。',
+        sourceLabel: '火炬电子2026一季报', sourceUrl: 'https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12246962&stockid=603678'
+      },
+      {
+        symbol: '688256.SH', name: '寒武纪', region: 'A股', layer: 'AI推理芯片/国产算力', status: '核心高估值',
+        kline: [['1日', '+1.6%'], ['20日', '-0.6%'], ['60日', '+72.5%'], ['252日', '+191.7%']],
+        flow: '资金结构：市值7979亿，A股AI芯片标杆；20日横盘震荡。',
+        evidence: '思元系列AI推理芯片进入国产算力采购名单；受益国产替代和信创；2026年推理芯片出货量预期大幅增长。但公司仍亏损，靠政府补贴和战略订单。',
+        valuation: '7979亿市值但仍亏损——典型A股主题溢价票；估值靠国产替代逻辑而非利润，波动极大。',
+        peers: '对标海光信息(x86 CPU)、华为昇腾(非上市)、AMD/NVIDIA(海外竞品)；寒武纪是A股纯AI芯片稀缺标的。',
+        bear: '芯片性能差距大、客户导入慢、持续亏损、政府补贴政策变化、高估值回撤。',
+        sourceLabel: '寒武纪官网', sourceUrl: 'https://www.cambricon.com/'
+      },
+      {
+        symbol: '688048.SH', name: '长光华芯', region: 'A股', layer: '高功率激光芯片/光芯片', status: '等待确认',
+        kline: [['1日', '+8.0%'], ['20日', '-16.4%'], ['60日', '+92.8%'], ['252日', '+573.9%']],
+        flow: '资金结构：市值636亿，20日回撤-16%但60日+93%仍强；6/9大涨+8%。',
+        evidence: '国产高功率半导体激光芯片龙头，产品覆盖VCSEL/EEL/光通信芯片；受益光模块国产化和激光器需求增长。',
+        valuation: '一年涨幅极高但20日显著回撤；只有在光芯片国产化订单兑现时，回撤才是机会。',
+        peers: '对标光库科技、源杰科技、Lumentum(激光器)、II-VI/Coherent(InP)；长光华芯更偏国产激光芯片。',
+        bear: '光芯片良率不达标、客户导入慢、与海外差距大、高估值回撤。',
+        sourceLabel: '长光华芯官网', sourceUrl: 'https://www.vertilite.com/'
+      },
+      {
+        symbol: 'ANET.US', name: 'Arista Networks', region: '美国', layer: 'AI数据中心交换机/网络', status: '高优先级',
+        kline: [['1日', '-0.2%'], ['20日', '+9.7%'], ['60日', '+15.6%'], ['252日', '+61.6%']],
+        flow: '资金结构：稳健增长型，252日+62%属于AI链中涨幅温和的核心票。',
+        evidence: '云数据中心以太网交换机龙头，AI集群网络架构核心供应商；2026Q1营收高增，AI相关网络需求是核心驱动。与NVIDIA/Broadcom/Marvell共同构成AI网络层。',
+        valuation: '估值按云网络增长定价，不便宜但确定性高；优势是客户粘性和软件(EOS)生态。',
+        peers: '对标 Cisco(传统网络)、Juniper、Broadcom/Marvell(网络芯片)；Arista在云AI网络份额领先。',
+        bear: 'AI网络capex放缓、白盒交换机侵蚀份额、Broadcom/Marvell交换芯片替代。',
+        sourceLabel: 'Arista 2026Q1业绩', sourceUrl: 'https://investors.arista.com/Communications/Press-Releases-and-Events/Press-Release-Detail/2026/Arista-Networks-Inc--Reports-First-Quarter-2026-Financial-Results/default.aspx'
+      },
+      {
+        symbol: 'CRDO.US', name: 'Credo Technology', region: '美国', layer: 'AI连接芯片/SerDes/AEC', status: '交易拥挤',
+        kline: [['1日', '+1.6%'], ['20日', '+11.9%'], ['60日', '+90.2%'], ['252日', '+212.7%']],
+        flow: '期权/资金活跃，60日+90%属于AI连接芯片反弹最猛标的之一。',
+        evidence: '高速SerDes IP和有源电缆(AEC)芯片核心供应商；产品直接卡在AI集群内部互连(GPU-to-GPU)和交换机链路。Computex 2026连接瓶颈主题直接利好。',
+        valuation: '小盘高弹性，估值按AI连接芯片增长定价；FY2026营收预计翻倍+。',
+        peers: '对标 Astera Labs(CXL/PCIe)、Marvell(光DSP)、Broadcom(SerDes)；Credo更偏有源电缆和SerDes IP。',
+        bear: '客户集中(Meta/微软)、AEC渗透率不及预期、竞争加剧、小盘流动性风险。',
+        sourceLabel: 'Credo Technology', sourceUrl: 'https://www.credosemi.com/'
+      },
+      {
+        symbol: 'ALAB.US', name: 'Astera Labs', region: '美国', layer: 'PCIe/CXL连接芯片', status: '交易拥挤',
+        kline: [['1日', '+4.1%'], ['20日', '+69.4%'], ['60日', '+171.7%'], ['252日', '+275.0%']],
+        flow: '20日+69%、60日+172%——AI连接芯片链反弹最猛。市值4215亿。',
+        evidence: 'PCIe retimer和CXL控制器龙头，产品卡在AI服务器内部GPU-to-CPU互连和内存扩展。黄仁勋GTC点名CXL/PCIe互连需求爆发。2026Q1收入同比+100%+。',
+        valuation: '极度拥挤，20日+69%是典型动量交易；但逻辑非常硬(每台AI服务器必需件)，估值靠收入兑现。',
+        peers: '对标 Credo(SerDes/AEC)、Marvell(PCIe/CXL)、Broadcom(PCIe switch)；ALAB在PCIe retimer市占率极高。',
+        bear: '动量回撤风险大、客户集中、PCIe/CXL下一代标准迭代、Broadcom/Marvell竞争。',
+        sourceLabel: 'Astera Labs', sourceUrl: 'https://www.asteralabs.com/'
+      },
+      {
+        symbol: 'SMCI.US', name: 'Super Micro / 超微电脑', region: '美国', layer: 'AI服务器/液冷机柜/DLC', status: '等待确认',
+        kline: [['1日', '+1.4%'], ['20日', '+34.2%'], ['60日', '+38.1%'], ['252日', '+2.0%']],
+        flow: '252日仅+2%——经历审计风波后刚恢复；20日+34%属于超跌反弹。',
+        evidence: 'AI服务器/液冷机柜ODM，曾是NVIDIA GB200首批合作伙伴；DLC(直接液冷)方案领先。但2024-2025审计/退市危机严重打击信誉，目前恢复上市但信任待重建。',
+        valuation: '一年涨幅几乎为零——在AI链里是最特殊的"跌完刚起步"标的；估值取决于审计信任修复和订单恢复。',
+        peers: '对标 Dell(企业级服务器)、Wiwynn(ODM)、Celestica、Quanta；SMCI曾是最纯AI服务器股但信用折价大。',
+        bear: '审计/合规问题再发酵、大客户转单、毛利率被压、管理层信誉无法修复。',
+        sourceLabel: 'Super Micro官网', sourceUrl: 'https://www.supermicro.com/'
+      },
+      {
+        symbol: 'VRT.US', name: 'Vertiv / 维谛技术', region: '美国', layer: '液冷CDU/UPS/热管理/数据中心基础设施', status: '等待确认',
+        kline: [['1日', '-2.3%'], ['20日', '-18.1%'], ['60日', '+13.6%'], ['252日', '+168.7%']],
+        flow: '资金结构：20日-18%显著回撤，短线不是最强方向；但252日+169%中期仍强。',
+        evidence: 'AI数据中心液冷CDU+UPS+精密空调全链龙头；与NVIDIA合作推800V直流AI工厂基础设施；产品覆盖从芯片级到机房级散热。全球市占率领先。',
+        valuation: '20日回撤后估值相对合理化；核心看数据中心基建订单backlog和毛利率趋势。',
+        peers: '对标 Schneider Electric、Eaton、Delta、Modine、英维克、奇鋐；Vertiv在AI液冷CDU上全球领先。',
+        bear: '订单转化慢、液冷CDU竞争加剧、工业周期拖累、高估值回撤。',
+        sourceLabel: 'Vertiv与NVIDIA 800V合作', sourceUrl: 'https://www.vertiv.com/en-emea/about/news-and-insights/news-releases/from-vision-to-readiness-vertiv-collaborates-with-nvidia-to-advance-800-vdc-platform-designs-to-power-the-next-generation-of-ai-factories/'
+      },
+      {
+        symbol: 'AMAT.US', name: 'Applied Materials / 应用材料', region: '美国', layer: '半导体设备/先进制程/封装设备', status: '高优先级',
+        kline: [['1日', '+4.0%'], ['20日', '+14.3%'], ['60日', '+42.3%'], ['252日', '+192.0%']],
+        flow: '资金结构：大单活跃，252日+192%稳健。全球半导体设备龙头之一。',
+        evidence: '薄膜沉积和刻蚀设备全球龙头；AI芯片先进制程(TSMC N2/N3/Intel 18A)和先进封装(CoWoS/Hybrid Bonding)的核心设备供应商。2026Q2营收创新高，半导体设备ICAPS+先进逻辑双驱动。',
+        valuation: '设备股估值通常按周期+技术节点迭代定价；AI延长了设备高景气周期，但需关注订单/出货比。',
+        peers: '对标 ASML(光刻)、Lam Research(刻蚀)、KLA(检测)、Tokyo Electron；AMAT更偏薄膜和封装设备。',
+        bear: '半导体设备周期见顶、中国出口管制影响收入、先进制程扩产放缓。',
+        sourceLabel: 'Applied Materials', sourceUrl: 'https://www.appliedmaterials.com/'
+      },
+      {
+        symbol: 'GEV.US', name: 'GE Vernova', region: '美国', layer: 'AI电力/燃气轮机/电网设备', status: '高优先级',
+        kline: [['1日', '-1.4%'], ['20日', '-12.9%'], ['60日', '+12.9%'], ['252日', '+95.0%']],
+        flow: '资金结构：20日-13%回撤，但252日+95%中期趋势完好。1.8万亿市值。',
+        evidence: 'GE分拆后的电力设备巨头，燃气轮机+电网设备覆盖AI数据中心从发电到配电全链；AI数据中心用电爆发(单个gigawatt级)是核心驱动。',
+        valuation: '属于AI电力链中"设备侧"最纯的大盘标的；20日回撤后估值更合理，但不是典型弹性票。',
+        peers: '对标 Siemens Energy(燃气轮机)、Eaton/Schneider(配电)、Bloom Energy(现场供电)；GEV更偏电网和大型发电设备。',
+        bear: 'AI数据中心电力审批放缓、电网投资周期性、天然气价格/碳排放约束、工业估值回归。',
+        sourceLabel: 'GE Vernova AI电力', sourceUrl: 'https://www.gevernova.com/news/articles/better-brains-meet-engineer-helping-power-complex-new-ai'
       }
     ];
 
