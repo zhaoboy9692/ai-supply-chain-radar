@@ -2176,7 +2176,7 @@
 
     <section id="deep-dive">
       <h2 id="sec-15">重点标的逐股研究</h2>
-      <p class="muted">按 AI 工厂纵深拆成<b>算力芯片、存储、光纤海缆、PCB/CCL、被动元件、AI芯片、光芯片、连接网络、测试、连接器、液冷、电气化、服务器ODM、光通信、电子布</b>等十五组（50 只）。美股、A股、港股结合行情快照与资金结构；日韩台欧部分用公开行情与官方资料，并标注数据来源差异。</p>
+      <p class="muted">按 AI 工厂纵深拆成<b>算力芯片、存储、光纤海缆、PCB/CCL、被动元件、AI芯片、光芯片、连接网络、测试、连接器、液冷、电气化、服务器ODM、光通信、电子布</b>等十五组（52 只）。美股、A股、港股结合行情快照与资金结构；日韩台欧部分用公开行情与官方资料，并标注数据来源差异。</p>
       <div id="deepDiveStats" class="grid cols-4"></div>
       <div id="deepDiveCards" class="deep-grid"></div>
     </section>
@@ -3613,6 +3613,26 @@
         peers: '对标 Siemens Energy(燃气轮机)、Eaton/Schneider(配电)、Bloom Energy(现场供电)；GEV更偏电网和大型发电设备。',
         bear: 'AI数据中心电力审批放缓、电网投资周期性、天然气价格/碳排放约束、工业估值回归。',
         sourceLabel: 'GE Vernova AI电力', sourceUrl: 'https://www.gevernova.com/news/articles/better-brains-meet-engineer-helping-power-complex-new-ai'
+      },
+      {
+        symbol: '000660.KS', name: 'SK海力士 / SK Hynix', region: '韩国', layer: 'HBM 全球龙头/DRAM/NAND', status: '核心高估值',
+        kline: [['1日', '-5.1%'], ['20日', '+11.9%'], ['60日', '+126.2%'], ['252日', '+942.2%']],
+        flow: '资金结构未披露(韩股,yfinance)。252日 +942%(近 10 倍)——<b>全球 AI 存储链涨幅之最</b>,跑赢美光(+758%);6-10 跟随回吐 -5.1%。',
+        evidence: 'SK海力士是 <b>HBM3E/HBM4 全球市占率第一(约 50%+)</b>,NVIDIA Blackwell/Rubin 的 HBM <b>第一主力供应商</b>;HBM 已 sold out 至 2026 全年、设计赢单锁定;DRAM/NAND 同步受益 AI 服务器需求爆发。是 AI 存储链<b>比美光更核心</b>的标的。',
+        valuation: '一年涨 9.4 倍,HBM 龙头地位已充分定价;但市占率第一 + NVIDIA 深度绑定 + 良率领先,弹性和确定性都强于美光/三星。估值锚在 HBM ASP、良率和 capex 回报。',
+        peers: '对标美光(HBM 三供之一)、三星(HBM 追赶者);海力士在 HBM 市占率、良率、NVIDIA 份额上全面领先,是存储三巨头里最纯的 HBM 弹性。',
+        bear: 'HBM ASP/良率下滑、三星 HBM4 认证追上夺份额、AI capex 放缓、DRAM 周期下行、韩国出口管制/地缘风险。',
+        sourceLabel: 'SK海力士官网', sourceUrl: 'https://www.skhynix.com/'
+      },
+      {
+        symbol: '005930.KS', name: '三星电子 / Samsung', region: '韩国', layer: 'HBM/DRAM/NAND/晶圆代工', status: '核心',
+        kline: [['1日', '-4.8%'], ['20日', '+7.4%'], ['60日', '+63.5%'], ['252日', '+470.2%']],
+        flow: '资金结构未披露(韩股)。252日 +470%,涨幅<b>明显低于海力士(+942%)和美光(+758%)</b>——HBM 份额落后 + 业务多元稀释 AI 纯度;6-10 回吐 -4.8%。',
+        evidence: '三星是 <b>DRAM/NAND 全球第一、HBM 全球第二</b>(追赶海力士中);HBM3E 向 NVIDIA 认证推进;同时布局晶圆代工(追台积电)、面板、手机。综合体量最大,但 HBM 纯度被多元业务稀释。',
+        valuation: '涨幅落后海力士/美光,正因 HBM 份额落后 + 业务庞杂;<b>若 HBM4 向 NVIDIA 认证突破,有追赶补涨空间</b>。是存储链里的"落后者博弈"。',
+        peers: '对标海力士(HBM 领先)、美光、台积电(代工);三星是唯一 HBM + 代工 + 存储全布局,但样样不极致,纯度不如海力士。',
+        bear: 'HBM4 认证慢于海力士、代工良率落后台积电、存储周期下行、业务庞杂拖累估值聚焦。',
+        sourceLabel: '三星电子半导体', sourceUrl: 'https://www.samsung.com/semiconductor/'
       }
     ];
 
