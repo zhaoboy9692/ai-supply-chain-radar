@@ -13196,16 +13196,21 @@
           <div class="table-wrap">
             <table class="mini-options-table">
               <thead><tr>
-                <th>时间</th><th>合约</th><th>类型</th><th>买卖方向</th>
+                <th>时间</th><th>合约</th><th style="white-space:nowrap">⏰ 到期日</th><th style="white-space:nowrap">🎯 行权价</th><th>类型</th><th>买卖方向</th>
                 <th class="num">成交量</th><th class="num">权利金</th><th class="num">成交价</th>
                 <th class="num">正股价</th><th class="num">DTE</th><th class="num">IV</th><th>解读</th>
               </tr></thead>
               <tbody>
                 ${rows.map(item => {
                   const label = bigOrderLabel(item);
+                  const strikeColor = item.type === 'CALL' ? '#15803d' : '#b91c1c';
+                  const strikeDiff = item.underlying ? ((item.strike - item.underlying) / item.underlying * 100) : null;
+                  const strikeTip = strikeDiff !== null ? (strikeDiff >= 0 ? `高于现价${Math.abs(strikeDiff).toFixed(1)}%` : `低于现价${Math.abs(strikeDiff).toFixed(1)}%`) : '';
                   return `<tr>
                     <td class="small muted" style="white-space:nowrap">${escapeHtml(item.tradeTime || '—')}</td>
-                    <td><span class="small muted">${escapeHtml(item.expiration)}</span><br>${escapeHtml(item.contract)}</td>
+                    <td><span class="small muted">${escapeHtml(item.contract)}</span></td>
+                    <td style="font-weight:700;white-space:nowrap">${escapeHtml(item.expiration)}</td>
+                    <td style="font-weight:700;color:${strikeColor};white-space:nowrap" title="${strikeTip}">$${formatPrice(item.strike)}${strikeTip ? ' <span style=\"font-size:11px;font-weight:400;opacity:.7\">('+strikeTip+')</span>' : ''}</td>
                     <td><span class="option-badge ${optionTypeClass(item.type)}">${optionTypeLabel(item.type)}</span></td>
                     <td><span class="option-badge ${label.cls}">${escapeHtml(label.text)}</span></td>
                     <td class="num">${formatNumber(item.volume)}</td>
@@ -13278,7 +13283,7 @@
       });
       body.innerHTML = rows.map(item => {
         const top = item.topContract || {};
-        const topLabel = top.contract ? `${top.expiration} ${optionTypeLabel(top.type)} ${formatPrice(top.strike)} · ${formatMoney(top.premium)}` : '—';
+        const topLabel = top.contract ? `<span style="font-weight:700">${top.expiration}</span> ${optionTypeLabel(top.type)} <span style="font-weight:700;color:${top.type==='CALL'?'#15803d':'#b91c1c'}">$${formatPrice(top.strike)}</span> · ${formatMoney(top.premium)}` : '—';
         const expanded = expandedOptionSymbol === item.symbol;
         return `
           <tr data-option-symbol="${escapeHtml(item.symbol)}">
