@@ -14364,11 +14364,490 @@
     }
 
     function longportSymbol(symbol) {
-      if (/^[A-Z]{1,5}$/.test(symbol)) return `${(window._stockNews&&window._stockNews[item.symbol])?`<div style="margin:10px 0 8px;padding:8px 10px;background:var(--surface,#f0f7ff);border-left:3px solid #3b82f6;border-radius:4px"><div style="margin:0 0 6px;font-size:13px;font-weight:700;color:#3b82f6">📰 最新快讯</div><ul style="margin:0;padding:0;list-style:none;font-size:12.5px;line-height:1.7">${window._stockNews[item.symbol].map(n=>'<li style="margin-bottom:2px"><span class="muted">'+escapeHtml(n.time)+'</span> '+(n.imp?'<span style="color:#dc2626">🔴</span>':'<span class="muted">·</span>')+' '+escapeHtml(n.text)+'</li>').join('')}</ul></div>`:''}
+      if (/^[A-Z]{1,5}$/.test(symbol)) return `${symbol}.US`;
+      return symbol;
+    }
+
+    function longportQuoteUrl(symbol) {
+      const s = longportSymbol(symbol);
+      // 台股长桥不支持(404) → Yahoo奇摩股市(台湾)
+      if (/\.TW$/.test(s)) return `https://tw.stock.yahoo.com/quote/${encodeURIComponent(s)}`;
+      // 长桥支持: 美股/A股/港股
+      if (/\.(US|SH|SZ|HK)$/.test(s)) return `https://longportapp.cn/zh-CN/quote/${encodeURIComponent(s)}`;
+      // 日/韩/欧/印/澳/马 长桥不支持 → Yahoo Finance 通用
+      return `https://finance.yahoo.com/quote/${encodeURIComponent(s)}`;
+    }
+
+    function statusClass(status) {
+      if (status.includes('交易拥挤')) return 'hot';
+      if (status.includes('等待')) return 'wait';
+      if (status.includes('滞后')) return 'lag';
+      if (status.includes('核心')) return 'core';
+      return 'watch';
+    }
+
+    function renderQuoteChip(symbol, name = '', title = '', displaySymbol = symbol) {
+      const suffix = name ? `<span class="ticker-name">${escapeHtml(name)}</span>` : '';
+      return `<a class="quote-chip" href="${longportQuoteUrl(symbol)}" target="_blank" rel="noopener" title="${escapeHtml(title || '行情')}"><code data-symbol="${escapeHtml(displaySymbol)}">${escapeHtml(displaySymbol)}${suffix}</code></a>`;
+    }
+
+    function renderLeaderUniverse() {
+      const root = document.getElementById('leaderUniverse');
+      const stats = document.getElementById('leaderStats');
+      const searchBox = document.getElementById('leaderSearch');
+      if (!root || !stats || !searchBox) return;
+
+      const query = searchBox.value.trim().toLowerCase();
+      const filtered = leaderUniverse.filter(item => {
+        const haystack = `${item.region} ${item.layer} ${item.symbol} ${item.name} ${item.status}`.toLowerCase();
+        const byRegion = activeLeaderRegion === 'all' || item.region === activeLeaderRegion;
+        const byText = !query || haystack.includes(query);
+        return byRegion && byText;
+      });
+
+      const byLayer = new Map();
+      filtered.forEach(item => {
+        if (!byLayer.has(item.layer)) byLayer.set(item.layer, []);
+        byLayer.get(item.layer).push(item);
+      });
+
+      const regionCount = new Set(filtered.map(item => item.region)).size;
+      const layerCount = new Set(filtered.map(item => item.layer)).size;
+      const coreCount = filtered.filter(item => item.status === '核心').length;
+      stats.innerHTML = [
+        ['龙头池数量', `${filtered.length} 只`],
+        ['覆盖地区', `${regionCount} 个`],
+        ['产业层级', `${layerCount} 层`],
+        ['核心标的', `${coreCount} 只`]
+      ].map(([label, value]) => `<div class="card"><div class="metric"><span>${label}</span><strong>${value}</strong></div></div>`).join('');
+
+      root.innerHTML = [...byLayer.entries()].map(([layer, items]) => {
+        const tickers = items.map(item => renderQuoteChip(item.symbol, item.name, `${item.region} · ${item.status} · 打开行情`)).join('');
+        return `<div class="card"><h3>${escapeHtml(layer)} <span class="tag">${items.length}只</span></h3><div class="ticker-line">${tickers}</div></div>`;
+      }).join('');
+    }
+
+    function resolveRegion(symbol) {
+      const normalized = longportSymbol(symbol);
+      const item = leaderUniverse.find(entry => entry.symbol === symbol || longportSymbol(entry.symbol) === normalized);
+      return item ? item.region : '其他';
+    }
+
+    function renderCrossSets() {
+      const root = document.getElementById('crossSets');
+      const stats = document.getElementById('crossSetStats');
+      if (!root || !stats) return;
+
+      const allSymbols = crossSets.flatMap(item => item.symbols);
+      const uniqueSymbols = new Set(allSymbols.map(symbol => longportSymbol(symbol)));
+      const repeatedSymbols = [...uniqueSymbols].filter(symbol => {
+        return allSymbols.filter(item => longportSymbol(item) === symbol).length >= 2;
+      });
+      const regions = new Set(allSymbols.map(resolveRegion));
+      stats.innerHTML = [
+        ['交叉集合', `${crossSets.length} 组`],
+        ['去重标的', `${uniqueSymbols.size} 只`],
+        ['覆盖地区', `${regions.size} 个`],
+        ['多集合重合', `${repeatedSymbols.length} 只`]
+      ].map(([label, value]) => `<div class="card"><div class="metric"><span>${label}</span><strong>${value}</strong></div></div>`).join('');
+
+      root.innerHTML = crossSets.map(item => {
+        const tickers = item.symbols.map(symbol => renderQuoteChip(symbol, tickerNames[longportSymbol(symbol)] || tickerNames[symbol] || '', `${item.title} · 打开行情`)).join('');
+        const sources = item.sources.map(([label, url]) => `<a class="tag" href="${url}" target="_blank" rel="noopener">${escapeHtml(label)}</a>`).join('');
+        return `
+          <article class="cross-card">
+            <div class="cross-head">
+              <h3>${escapeHtml(item.title)}</h3>
+              <span class="tag ${statusClass(item.status)}">${escapeHtml(item.status)}</span>
+            </div>
+            <p class="small muted">${escapeHtml(item.thesis)}</p>
+            <div class="ticker-line">${tickers}</div>
+            <dl class="cross-meta">
+              <dt>价格位置</dt><dd>${escapeHtml(item.position)}</dd>
+              <dt>证据强度</dt><dd>${escapeHtml(item.evidence)}</dd>
+              <dt>反证条件</dt><dd>${escapeHtml(item.bear)}</dd>
+            </dl>
+            <div class="source-pills">${sources}</div>
+          </article>`;
+      }).join('');
+    }
+
+    function mapTickerName(symbol) {
+      const normalized = longportSymbol(symbol);
+      const universeItem = leaderUniverse.find(item => item.symbol === symbol || longportSymbol(item.symbol) === normalized);
+      return tickerNames[normalized] || tickerNames[symbol] || (universeItem ? universeItem.name : '');
+    }
+
+    function renderMapQuoteChip(symbol) {
+      const name = mapTickerName(symbol);
+      const label = name ? `${symbol} ${name}` : symbol;
+      return `<a class="quote-chip" href="${longportQuoteUrl(symbol)}" target="_blank" rel="noopener" title="打开行情"><code>${escapeHtml(label)}</code></a>`;
+    }
+
+    function renderMapTickerLine(symbols) {
+      return `<div class="ticker-line">${symbols.map(renderMapQuoteChip).join('')}</div>`;
+    }
+
+    function renderMapGroups(groups) {
+      return `<dl class="map-group">${groups.map(([label, symbols]) => `
+        <dt>${escapeHtml(label)}</dt>
+        <dd>${renderMapTickerLine(symbols)}</dd>
+      `).join('')}</dl>`;
+    }
+
+    function renderMapLayers() {
+      const root = document.getElementById('mapLayerCards');
+      if (!root) return;
+      root.innerHTML = mapLayers.map(layer => `
+        <article class="map-layer-card">
+          <div class="map-layer-head">
+            <h3>${escapeHtml(layer.title)}</h3>
+            <span class="tag core">${escapeHtml(layer.tag)}</span>
+          </div>
+          ${renderMapGroups(layer.groups)}
+        </article>
+      `).join('');
+    }
+
+    function renderMapFactory() {
+      const root = document.getElementById('mapFactoryCards');
+      if (!root) return;
+      root.innerHTML = mapFactoryLayers.map(([title, desc, symbols]) => `
+        <article class="card">
+          <h3>${escapeHtml(title)}</h3>
+          <p class="small muted">${escapeHtml(desc)}</p>
+          ${renderMapTickerLine(symbols)}
+        </article>
+      `).join('');
+    }
+
+    function renderMapInfrastructure() {
+      const root = document.getElementById('mapInfraCards');
+      if (!root) return;
+      root.innerHTML = mapInfrastructure.map(([title, groups]) => `
+        <article class="map-layer-card">
+          <h3>${escapeHtml(title)}</h3>
+          ${renderMapGroups(groups)}
+        </article>
+      `).join('');
+    }
+
+    function renderMapEtfs() {
+      const root = document.getElementById('mapEtfCards');
+      if (!root) return;
+      root.innerHTML = mapEtfGroups.map(([title, symbols]) => `
+        <article class="card">
+          <h3>${escapeHtml(title)}</h3>
+          ${renderMapTickerLine(symbols)}
+        </article>
+      `).join('');
+    }
+
+    function renderMapCrossSets() {
+      const root = document.getElementById('mapCrossCards');
+      if (!root) return;
+      root.innerHTML = mapCrossSets.map(([title, desc, symbols], index) => {
+        const tone = index === 3 ? 'wait' : index === 4 ? 'hot' : 'watch';
+        return `
+          <article class="card cross-card">
+            <div class="map-layer-head">
+              <h3>${escapeHtml(title)}</h3>
+              <span class="tag ${tone}">${symbols.length} 只</span>
+            </div>
+            <p class="small muted">${escapeHtml(desc)}</p>
+            ${renderMapTickerLine(symbols)}
+          </article>`;
+      }).join('');
+    }
+
+    function renderMapStats() {
+      const root = document.getElementById('mapStats');
+      if (!root) return;
+      const allSymbols = [
+        ...mapLayers.flatMap(layer => layer.groups.flatMap(group => group[1])),
+        ...mapFactoryLayers.flatMap(item => item[2]),
+        ...mapInfrastructure.flatMap(item => item[1].flatMap(group => group[1])),
+        ...mapEtfGroups.flatMap(item => item[1]),
+        ...mapCrossSets.flatMap(item => item[2])
+      ];
+      const unique = new Set(allSymbols.map(longportSymbol));
+      const stats = [
+        ['产业大层', `${mapLayers.length} 个`],
+        ['AI 工厂层', `${mapFactoryLayers.length} 层`],
+        ['交叉集合', `${mapCrossSets.length} 组`],
+        ['去重代码', `${unique.size} 个`]
+      ];
+      root.innerHTML = stats.map(([label, value]) => `
+        <div class="card">
+          <div class="metric"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>
+        </div>
+      `).join('');
+    }
+
+    function renderMapPanel() {
+      renderMapStats();
+      renderMapLayers();
+      renderMapFactory();
+      renderMapInfrastructure();
+      renderMapEtfs();
+      renderMapCrossSets();
+    }
+
+
+    // ===== AI 综合信号榜（数据驱动，随刷新自动重算）=====
+    function renderAISignals() {
+      const root = document.getElementById('aiSignalsBody');
+      const statsEl = document.getElementById('aiSignalsStats');
+      if (!root) return;
+      const kline = window._klineUpdate || {};
+      const optMap = {}, preMap = {}, nameMap = {};
+      try { if (typeof unusualOptions!=='undefined' && unusualOptions.summaries) unusualOptions.summaries.forEach(s=>optMap[s.symbol]=s); } catch(e){}
+      try { if (typeof premarketStocks!=='undefined') premarketStocks.forEach(p=>{ preMap[p.symbol]=p; nameMap[p.symbol]=p.name; }); } catch(e){}
+      try { if (typeof deepDiveStocks!=='undefined') deepDiveStocks.forEach(d=>nameMap[d.symbol]=d.name); } catch(e){}
+
+      // 名称 + AI产业定位（复用 leaderUniverse: [地区,板块,代码,名称,层级]）+ 国旗
+      const infoMap = (typeof window!=='undefined' && window._aiNameMap) || {};
+      infoMap['STM.US']=infoMap['STM.US']||{name:'意法半导体',sector:'模拟/MCU/功率',region:'欧洲'};
+      infoMap['ASM.AS']=infoMap['ASM.AS']||{name:'ASM International',sector:'半导体设备',region:'欧洲'};
+      const flagOf = s => /\.US$/.test(s)?'🇺🇸':/\.(SH|SZ)$/.test(s)?'🇨🇳':/\.HK$/.test(s)?'🇭🇰':/\.T$/.test(s)?'🇯🇵':/\.TW$/.test(s)?'🇹🇼':/\.(KS|KQ)$/.test(s)?'🇰🇷':/\.AS$/.test(s)?'🇳🇱':/\.DE$/.test(s)?'🇩🇪':/\.PA$/.test(s)?'🇫🇷':/\.SW$/.test(s)?'🇨🇭':/\.NS$/.test(s)?'🇮🇳':/\.AX$/.test(s)?'🇦🇺':/\.KL$/.test(s)?'🇲🇾':/\.L$/.test(s)?'🇬🇧':'🏳️';
+      const nameOf = s => (infoMap[s]&&infoMap[s].name) || nameMap[s] || s.replace(/\.(US|SH|SZ|HK|T|TW|KS|KQ|AS|DE|PA|NS|AX|KL)$/,'');
+      const sectorOf = s => (infoMap[s]&&infoMap[s].sector) || '';
+
+      const signals = [];
+      Object.keys(kline).forEach(sym => {
+        const k = kline[sym] || {};
+        const opt = optMap[sym], pre = preMap[sym];
+        const r1=k.r1||0, r20=k.r20||0, r60=k.r60||0, r252=k.r252||0;
+        let score = 50; const good=[], bad=[];
+
+        // 多周期动能
+        if (r60>=80){ score+=18; good.push('中期极强（60日 +'+r60.toFixed(0)+'%）'); }
+        else if (r60>=30){ score+=10; good.push('中期强势（60日 +'+r60.toFixed(0)+'%）'); }
+        else if (r60<0){ score-=8; bad.push('60日转弱'); }
+        if (r20>=25){ score+=10; good.push('近期加速（20日 +'+r20.toFixed(0)+'%）'); }
+        else if (r20<=-12){ score-=10; bad.push('近20日回调 '+r20.toFixed(0)+'%'); }
+
+        // 拥挤度惩罚
+        if (r252>=800){ score-=22; bad.push('年涨 '+r252.toFixed(0)+'% 极度拥挤'); }
+        else if (r252>=300){ score-=10; bad.push('年涨幅偏高（'+r252.toFixed(0)+'%）'); }
+
+        // 期权多空
+        if (opt){
+          const cr=opt.callRatio||50, net=opt.netPremium||0, tot=opt.totalPremium||0;
+          if (tot>=50000000){ score+=8; good.push('期权权利金机构级（$'+(tot/1e6).toFixed(0)+'M）'); }
+          if (cr>=75 && net>0){ score+=16; good.push('期权强看涨（Call '+cr.toFixed(0)+'% + 大单净买入）'); }
+          else if (cr>=60){ score+=8; good.push('期权偏多（Call '+cr.toFixed(0)+'%）'); }
+          else if (cr<=35){ score-=12; bad.push('期权偏空（Put 主导）'); }
+          if (net<=-10000000){ score-=10; bad.push('期权大单净卖出 $'+Math.abs(net/1e6).toFixed(0)+'M'); }
+        }
+
+        // 盘前动能
+        if (pre){
+          const pp=pre.prePct||0;
+          if (pp>=3){ score+=14; good.push('盘前强势 +'+pp.toFixed(1)+'%'); }
+          else if (pp>=1){ score+=6; }
+          else if (pp<=-2){ score-=6; bad.push('盘前走弱 '+pp.toFixed(1)+'%'); }
+        }
+
+        if (good.length===0 && bad.length===0) return;
+        const dir = score>=70?'强多头':score>=58?'偏多':score>=45?'中性':'偏空/回避';
+        const dirClass = score>=58?'bull':score>=45?'neu':'bear';
+        signals.push({sym, name:nameOf(sym), sector:sectorOf(sym), flag:flagOf(sym), score:Math.round(score), dir, dirClass, good, bad, r1, r20, r60, r252, opt, pre});
+      });
+
+      signals.sort((a,b)=>b.score-a.score);
+      const top = signals.slice(0, 30);
+      const risk = signals.filter(s=>s.score<45).slice(-6).reverse();
+
+      // 统计
+      if (statsEl){
+        const strong = signals.filter(s=>s.score>=70).length;
+        const optCount = signals.filter(s=>s.opt).length;
+        statsEl.innerHTML = [
+          ['信号标的', signals.length+' 只'],
+          ['强多头(≥70)', strong+' 只'],
+          ['含期权异动', optCount+' 只'],
+          ['最高信号分', (signals[0]?signals[0].score+' · '+signals[0].flag+signals[0].name:'-')]
+        ].map(([l,v])=>`<div class="card"><div class="metric"><span>${l}</span><strong>${v}</strong></div></div>`).join('');
+      }
+
+      const pct = v => (v>=0?'+':'')+v.toFixed(1)+'%';
+      const tone = v => v>=0?'pos':'neg';
+      const rankCls = i => i===0?'gold':i===1?'silver':i===2?'bronze':'';
+      const clean = s => s.replace(/\.(US|SH|SZ|HK|T|TW|KS|KQ|AS|DE|PA|NS|AX|KL)$/,'');
+
+      // 💼 核心标的速览（固定显示用户关心的大票，不管排名）
+      const sigMap = {}; signals.forEach(s=>sigMap[s.sym]=s);
+      const CORE = ['AVGO.US','MRVL.US','MU.US','NVDA.US','AMD.US','COHR.US','LITE.US','CIEN.US','CRDO.US','ALAB.US'];
+      const coreRows = CORE.map(s=>sigMap[s]).filter(Boolean);
+      let h = '';
+      // 🔗 AI 产业链全景：11 大环节聚合信号（上游→下游）
+      const CHAIN = [
+        ['① 上游·设备/材料', /设备|材料|耗材|硅片|光刻|CMP|探针|ATE|量测/],
+        ['② 芯片·EDA/代工', /EDA|IP|代工|晶圆|制造/],
+        ['③ 芯片·设计', /AI芯片|ASIC|CPU|FPGA|GPU|SoC|算力|边缘|射频/],
+        ['④ 存储·HBM/NAND', /存储|HBM|NAND|DRAM/],
+        ['⑤ 封测·先进封装', /封测|封装|基板|载板/],
+        ['⑥ 光通信·CPO', /光通信|CPO|光纤|光电/],
+        ['⑦ PCB·被动/连接', /PCB|CCL|电子布|玻纤|MLCC|电容|被动|连接器|线缆|磁/],
+        ['⑧ 服务器·网络', /服务器|ODM|EMS|交换|网络|SiP/],
+        ['⑨ 电力·散热', /电源|电网|供电|散热|液冷|能源|电气|燃料电池|功率|HVAC|核电|变压|热/],
+        ['⑩ 云·软件/应用', /云|软件|数据|安全|机器人|工业AI|REIT|机房|终端|SaaS|工程|服务|AI PC/],
+      ];
+      const chainAgg = CHAIN.map(([nm,rx])=>{
+        const items = signals.filter(s=>rx.test(s.sector||''));
+        if(!items.length) return null;
+        const avg = Math.round(items.reduce((a,s)=>a+s.score,0)/items.length);
+        const sorted = items.slice().sort((a,b)=>b.score-a.score);
+        const bull = items.filter(s=>s.score>=58).length;
+        return {nm, n:items.length, avg, top3:sorted.slice(0,3), bull};
+      }).filter(Boolean).sort((a,b)=>b.avg-a.avg);
+      if(chainAgg.length){
+        h += '<h3 style="margin:14px 0 6px">🔗 AI 产业链全景信号（上游→下游 '+chainAgg.length+' 大环节 · 共 '+signals.length+' 标的）</h3>';
+        h += '<p class="muted" style="margin:0 0 6px">每个环节聚合该段全部标的的 AI 信号分，看清资金在产业链哪一段。按环节平均分排序。</p>';
+        h += '<div class="table-wrap"><table><thead><tr><th>产业链环节</th><th>标的</th><th>多头占比</th><th>平均分</th><th>环节温度</th><th>最强标的</th></tr></thead><tbody>';
+        chainAgg.forEach(c=>{
+          const temp = c.avg>=60?'🔥 强势':c.avg>=53?'🌤 偏多':c.avg>=47?'⚪ 中性':'❄️ 偏弱';
+          const t3 = c.top3.map(s=>`${s.flag}${s.name}(${s.score})`).join('、');
+          h += `<tr><td><b>${c.nm}</b></td><td class="num">${c.n}</td><td class="num">${Math.round(c.bull/c.n*100)}%</td><td class="num"><b style="font-size:15px">${c.avg}</b></td><td>${temp}</td><td style="font-size:12px;color:var(--muted)">${t3}</td></tr>`;
+        });
+        h += '</tbody></table></div>';
+      }
+      if (coreRows.length){
+        h += '<h3 style="margin:14px 0 6px">💼 核心标的速览（博通 / 迈威尔 / 美光 / 光通信）</h3>';
+        h += '<div class="table-wrap"><table><thead><tr><th>标的</th><th>信号分</th><th>方向</th><th>20日</th><th>60日</th><th>252日</th><th>期权方向</th><th>盘前</th><th>关键解读</th></tr></thead><tbody>';
+        coreRows.forEach(s=>{
+          const opt=s.opt, pre=s.pre;
+          const optTxt = opt ? (opt.bias||'-')+(opt.callRatio!=null?' · Call'+opt.callRatio.toFixed(0)+'%':'') : '—';
+          const preTxt = (pre&&pre.prePct!=null) ? `<span class="${tone(pre.prePct)}">${pct(pre.prePct)}</span>` : '—';
+          const key = s.good[0] || s.bad[0] || '—';
+          h += `<tr><td><b>${s.flag} ${clean(s.sym)}</b><br><span style="font-size:11px;color:var(--muted)">${s.name}${s.sector?' · '+s.sector:''}</span></td>
+            <td><b style="font-size:16px">${s.score}</b></td>
+            <td><span class="ai-dir ${s.dirClass}">${s.dir}</span></td>
+            <td class="num ${tone(s.r20)}">${pct(s.r20)}</td>
+            <td class="num ${tone(s.r60)}">${pct(s.r60)}</td>
+            <td class="num ${tone(s.r252)}">${pct(s.r252)}</td>
+            <td style="font-size:12px">${optTxt}</td>
+            <td class="num">${preTxt}</td>
+            <td style="font-size:12px;color:var(--muted)">${key}</td></tr>`;
+        });
+        h += '</tbody></table></div>';
+      }
+      // ⚡ AI 数据中心电力与散热链速览（固定显示全部电力标的，按分排序）
+      const powerRows = signals.filter(s=>/电源|电网|供电|能源|散热|燃料电池|电气化|功率|HVAC|核电|变压/.test(s.sector||'')).sort((a,b)=>b.score-a.score);
+      if (powerRows.length){
+        h += '<h3 style="margin:18px 0 6px">⚡ AI 数据中心电力与散热链速览（'+powerRows.length+' 标的）</h3>';
+        h += '<p class="muted" style="margin:0 0 6px">AI 算力的电力瓶颈：现场供电 · 电网设备 · 电源/散热 · 核电铀 · 功率半导体。按信号分排序，纳入全部电力标的。</p>';
+        h += '<div class="table-wrap" style="max-height:460px;overflow:auto"><table><thead><tr><th>标的</th><th>信号分</th><th>方向</th><th>20日</th><th>60日</th><th>252日</th><th>盘前</th><th>关键解读</th></tr></thead><tbody>';
+        powerRows.forEach(s=>{
+          const preTxt=(s.pre&&s.pre.prePct!=null)?`<span class="${tone(s.pre.prePct)}">${pct(s.pre.prePct)}</span>`:'—';
+          const key=s.good[0]||s.bad[0]||'—';
+          h += `<tr><td><b>${s.flag} ${clean(s.sym)}</b><br><span style="font-size:11px;color:var(--muted)">${s.name}${s.sector?' · '+s.sector:''}</span></td>
+            <td><b style="font-size:16px">${s.score}</b></td>
+            <td><span class="ai-dir ${s.dirClass}">${s.dir}</span></td>
+            <td class="num ${tone(s.r20)}">${pct(s.r20)}</td>
+            <td class="num ${tone(s.r60)}">${pct(s.r60)}</td>
+            <td class="num ${tone(s.r252)}">${pct(s.r252)}</td>
+            <td class="num">${preTxt}</td>
+            <td style="font-size:12px;color:var(--muted)">${key}</td></tr>`;
+        });
+        h += '</tbody></table></div>';
+      }
+      h += '<h3 style="margin:18px 0 6px">🏆 全市场强信号 TOP 30</h3>';
+      h += '<div class="ai-grid">';
+      top.forEach((s,i)=>{
+        h += `<div class="ai-card ${i===0?'top1':''}">
+          <div class="ai-rank ${rankCls(i)}">${i+1}</div>
+          <div class="ai-head">
+            <div><div class="ai-sym">${s.flag} ${s.name}</div><div class="ai-name">${clean(s.sym)}${s.sector?' · '+s.sector:''}</div>
+              <span class="ai-dir ${s.dirClass}">${s.dir}</span></div>
+            <div style="text-align:right"><div class="ai-score">${s.score}<small>分</small></div></div>
+          </div>
+          <div class="ai-mini">
+            <span><b>1日</b><span class="${tone(s.r1)}">${pct(s.r1)}</span></span>
+            <span><b>20日</b><span class="${tone(s.r20)}">${pct(s.r20)}</span></span>
+            <span><b>60日</b><span class="${tone(s.r60)}">${pct(s.r60)}</span></span>
+            <span><b>252日</b><span class="${tone(s.r252)}">${pct(s.r252)}</span></span>
+          </div>
+          <ul class="ai-pts">
+            ${s.good.slice(0,3).map(g=>`<li class="good">${g}</li>`).join('')}
+            ${s.bad.slice(0,2).map(b=>`<li class="bad">${b}</li>`).join('')}
+          </ul>
+        </div>`;
+      });
+      h += '</div>';
+
+      if (risk.length){
+        h += '<div class="ai-risk-list"><b>⚠️ 信号转弱 / 高拥挤标的（谨慎）：</b> ' +
+          risk.map(s=>`${s.flag} <b style="color:var(--ink)">${s.name}</b>(${s.score}分·${s.bad[0]||'走弱'})`).join('　｜　') +
+          '</div>';
+      }
+      root.innerHTML = h;
+    }
+
+    function renderDeepDiveCards() {
+    // 实时 K线数据注入（每次重跑 update_kline_today.py 后自动刷新）
+    if (window._klineUpdate) {
+      deepDiveStocks.forEach(item => {
+        const sym = item.symbol;
+        const d = window._klineUpdate[sym];
+        if (d) {
+          const fmt = v => v == null ? '—' : (v >= 0 ? '+' : '') + v.toFixed(2) + '%';
+          item.kline = [['1日', fmt(d.r1)], ['20日', fmt(d.r20)], ['60日', fmt(d.r60)], ['252日', fmt(d.r252)]];
+        }
+      });
+    }
+
+      const root = document.getElementById('deepDiveCards');
+      const stats = document.getElementById('deepDiveStats');
+      if (!root || !stats) return;
+
+      const regionCount = new Set(deepDiveStocks.map(item => item.region)).size;
+      const layerCount = new Set(deepDiveStocks.map(item => item.layer)).size;
+      const hotCount = deepDiveStocks.filter(item => item.status.includes('交易拥挤')).length;
+      const waitCount = deepDiveStocks.filter(item => item.status.includes('等待') || item.status.includes('滞后')).length;
+      stats.innerHTML = [
+        ['逐股卡片', `${deepDiveStocks.length} 只`],
+        ['覆盖市场', `${regionCount} 个`],
+        ['产业层级', `${layerCount} 层`],
+        ['交易拥挤/等待确认', `${hotCount}/${waitCount} 只`]
+      ].map(([label, value]) => `<div class="card"><div class="metric"><span>${label}</span><strong>${value}</strong></div></div>`).join('');
+
+      root.innerHTML = deepDiveStocks.map(item => {
+        const kline = item.kline.map(([label, value]) => {
+          const tone = value.trim().startsWith('-') ? 'neg' : 'pos';
+          return `<span><b>${escapeHtml(label)}</b><strong class="${tone}">${escapeHtml(value)}</strong></span>`;
+        }).join('');
+        return `
+          <article class="deep-card">
+            <div class="deep-head">
+              <div>
+                <div>${renderQuoteChip(item.quoteSymbol || item.symbol, '', `${item.name} · 打开行情`, item.symbol)}</div>
+                <h3>${escapeHtml(item.name)}</h3>
+              </div>
+              <span class="tag ${statusClass(item.status)}">${escapeHtml(item.status)}</span>
+            </div>
+            <div class="deep-meta">
+              <span class="tag">${escapeHtml(item.region)}</span>
+              <span class="tag">${escapeHtml(item.layer)}</span>
+            </div>
+            ${(window._deepSession&&window._deepSession[item.symbol])?`<div class="session-row"><span class="session-badge ${window._deepSession[item.symbol].cls}">${window._deepSession[item.symbol].label} <b>${window._deepSession[item.symbol].price}</b> <span class="${window._deepSession[item.symbol].tone}">${window._deepSession[item.symbol].pct}</span>${window._deepSession[item.symbol].sub?' · '+window._deepSession[item.symbol].sub:''}</span></div>`:''}
+            <div class="kline-strip">${kline}</div>
+            <dl class="deep-points">
+              <dt>资金流</dt><dd>${escapeHtml(item.flow)}</dd>
+              <dt>订单证据</dt><dd>${escapeHtml(item.evidence)}</dd>
+              <dt>估值</dt><dd>${escapeHtml(item.valuation)}</dd>
+              <dt>同业对比</dt><dd>${escapeHtml(item.peers)}</dd>
+              <dt>反证条件</dt><dd>${escapeHtml(item.bear)}</dd>
+            </dl>
             <div class="deep-source small muted">来源：<a href="${item.sourceUrl}" target="_blank" rel="noopener">${escapeHtml(item.sourceLabel)}</a></div>
           </article>`;
       }).join('');
     }
+
+
+
+
 
 
     let activePremarketFilter = 'all';
